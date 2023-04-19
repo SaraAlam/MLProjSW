@@ -4,7 +4,7 @@ import os.path
 from PIL import Image
 import numpy as np
 
-def get_seal_folders():
+def get_seal_imgs_and_labels():
     # dir path
     yearly_file_names = ["Final_Training_Dataset_2020"]
     f = open("trainingNames.txt", "w")
@@ -39,6 +39,8 @@ def resize_and_add_to_X(seal_name, seal_folder_path, train_images, train_labels,
     seal_files = os.listdir(seal_folder_path)
     dir_path2 = os.path.join(os.getcwd(),"final_resized_imgs")
     img_num = len(train_labels)
+    count = 0
+    non_img_files = []
     for file in seal_files:
 
             file_extention = ""
@@ -48,11 +50,11 @@ def resize_and_add_to_X(seal_name, seal_folder_path, train_images, train_labels,
                 file_extention = "jpeg"
 
             if file_extention!="":
+                count+=1
                 train_labels.append(seal_idx)
                 f_img = os.path.join(seal_folder_path, file)
                 img = Image.open(f_img)
                 img = img.resize((224,224))
-                #train_images,train_labels = func(f_img, train_images, train_labels, seal_idx)
                 if file_extention=="png":
                     train_images.append(np.asarray(img)[:,:,:3])
                     f2 = os.path.join(dir_path2, str(img_num)+".png")
@@ -61,7 +63,17 @@ def resize_and_add_to_X(seal_name, seal_folder_path, train_images, train_labels,
                     f2 = os.path.join(dir_path2, str(img_num)+".jpeg")
                 img.save(f2)
                 img_num += 1
+            else:
+                non_img_files.append(file)
+
+    for file in seal_files:
+        if file not in non_img_files:
+            f_img = os.path.join(seal_folder_path, file)
+            train_images,train_labels = augmentation(f_img, train_images, train_labels, seal_idx, count)
     return train_images, train_labels
+
+def augmentation():
+    pass
 
 def get_seal_name(s):
     seal_name = ""
@@ -71,7 +83,7 @@ def get_seal_name(s):
     return ch
 
 def main():
-    get_seal_folders()
+    get_seal_imgs_and_labels()
 
 if __name__=="__main__":
     main()
