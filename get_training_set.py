@@ -6,7 +6,7 @@ import numpy as np
 
 def get_seal_folders():
     # dir path
-    yearly_file_names = ["Final_Training_Dataset_2019", "Final_Training_Dataset_2020"]
+    yearly_file_names = ["Final_Training_Dataset_2020"]
     f = open("trainingNames.txt", "w")
     dir_path = r'C:\Users\sarah\Downloads\ApplMLlabs\AppMLProjSpr23SaraWael'
 
@@ -29,6 +29,7 @@ def get_seal_folders():
                 seal_idx+=1
         print("Number of seals with 2 or more pictures: " + str(num_seals_to_train_on))
     f.close()
+    print(len(train_labels))
     train_images, train_labels = np.array(train_images), np.array(train_labels)
     np.save("train_images", train_images)
     np.save("train_labels", train_labels)
@@ -39,7 +40,6 @@ def resize_and_add_to_X(seal_name, seal_folder_path, train_images, train_labels,
     dir_path2 = os.path.join(os.getcwd(),"final_resized_imgs")
     img_num = len(train_labels)
     for file in seal_files:
-            train_labels.append(seal_idx)
 
             file_extention = ""
             if file.endswith("png"):
@@ -48,14 +48,17 @@ def resize_and_add_to_X(seal_name, seal_folder_path, train_images, train_labels,
                 file_extention = "jpeg"
 
             if file_extention!="":
+                train_labels.append(seal_idx)
                 f_img = os.path.join(seal_folder_path, file)
                 img = Image.open(f_img)
                 img = img.resize((224,224))
+                #train_images,train_labels = func(f_img, train_images, train_labels, seal_idx)
                 if file_extention=="png":
                     train_images.append(np.asarray(img)[:,:,:3])
+                    f2 = os.path.join(dir_path2, str(img_num)+".png")
                 else:
                     train_images.append(np.asarray(img))
-                f2 = os.path.join(dir_path2, str(img_num)+".png")
+                    f2 = os.path.join(dir_path2, str(img_num)+".jpeg")
                 img.save(f2)
                 img_num += 1
     return train_images, train_labels
